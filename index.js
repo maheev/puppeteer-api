@@ -15,12 +15,18 @@ app.get('/scrape', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
+    // Переход на нужную страницу
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // Ждём появления карточек товаров
+    await page.waitForSelector('.product-card');
+
+    // Забираем данные
     const data = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('.product')).map(el => ({
-        title: el.querySelector('.title')?.innerText.trim(),
-        price: el.querySelector('.price')?.innerText.trim()
+      return Array.from(document.querySelectorAll('.product-card')).map(el => ({
+        title: el.querySelector('.product-card-name')?.innerText.trim() || 'Нет названия',
+        price: el.querySelector('.product-price__wrapper')?.innerText.trim() || 'Нет цены'
       }));
     });
 

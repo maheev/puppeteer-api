@@ -15,24 +15,17 @@ app.get('/scrape', async (req, res) => {
     });
 
     const page = await browser.newPage();
-
-    // Переход на нужную страницу
     await page.goto(url, { waitUntil: 'networkidle2' });
-
-    // Ждём появления карточек товаров
     await page.waitForSelector('.product-card');
 
-    // Забираем данные
     const data = await page.evaluate(() => {
       return Array.from(document.querySelectorAll('.product-card')).map(el => {
         const title = el.querySelector('.product-card-name')?.innerText.trim() || 'Нет названия';
 
-        // Извлекаем цену
         const rub = el.querySelector('.product-price__sum-rubles')?.innerText.trim() || '';
         const kop = el.querySelector('.product-price__sum-penny')?.innerText.trim() || '';
         const price = rub ? `${rub}.${kop || '00'}` : 'Нет цены';
 
-        // Добавляем бренд (по первому слову) и сеть
         const brand = title.split(' ')[0].toUpperCase();
         const network = "METRO";
 

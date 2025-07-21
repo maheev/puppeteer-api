@@ -1,6 +1,5 @@
 const express = require('express');
 const puppeteer = require('puppeteer-core');
-const chromeLauncher = require('chrome-launcher');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,12 +9,8 @@ app.get('/scrape', async (req, res) => {
   if (!url) return res.status(400).send({ error: 'Missing URL' });
 
   try {
-    const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
-    const executablePath = chrome.binaryPath;
-    await chrome.kill(); // останавливаем chrome-launcher
-
     const browser = await puppeteer.launch({
-      executablePath,
+      executablePath: '/usr/bin/google-chrome', // ✅ надёжный путь
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
